@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Funcionários</title>
 
-    <!-- Biblioteca oficial do Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -22,17 +21,17 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            padding: 35px 20px;
         }
 
         .container {
             width: 100%;
-            max-width: 480px;
+            max-width: 900px;
             background: #ffffff;
             padding: 35px;
             border-radius: 14px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            height: fit-content;
         }
 
         .header {
@@ -70,7 +69,6 @@
             border-radius: 8px;
             font-size: 15px;
             outline: none;
-            transition: border 0.2s;
         }
 
         input:focus {
@@ -78,13 +76,12 @@
         }
 
         button {
-            width: 100%;
-            padding: 14px;
+            padding: 13px 18px;
             background: #2563eb;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             transition: background 0.2s;
@@ -97,6 +94,12 @@
         button:disabled {
             background: #94a3b8;
             cursor: not-allowed;
+        }
+
+        .btn-cadastrar {
+            width: 100%;
+            font-size: 16px;
+            padding: 14px;
         }
 
         #mensagem {
@@ -120,16 +123,128 @@
             color: #991b1b;
         }
 
+        /* ÁREA DA TABELA */
+
+        .lista-section {
+            margin-top: 40px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 30px;
+        }
+
+        .lista-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .lista-header h2 {
+            font-size: 20px;
+            color: #172554;
+        }
+
+        .lista-header p {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .btn-atualizar {
+            background: #0f172a;
+            white-space: nowrap;
+        }
+
+        .btn-atualizar:hover {
+            background: #334155;
+        }
+
+        .tabela-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8fafc;
+        }
+
+        th {
+            color: #475569;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 15px;
+            font-size: 14px;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .id-badge {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .vazio {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+        }
+
+        .contador {
+            margin-top: 15px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
         .footer {
-            margin-top: 25px;
+            margin-top: 30px;
             text-align: center;
             font-size: 12px;
             color: #94a3b8;
         }
 
-        @media (max-width: 500px) {
+        @media (max-width: 600px) {
             .container {
-                padding: 25px 20px;
+                padding: 22px 16px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .lista-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .btn-atualizar {
+                width: 100%;
             }
         }
     </style>
@@ -137,153 +252,347 @@
 
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <div class="header">
-            <h1>Cadastro de Funcionários</h1>
-            <p>Preencha os dados para realizar o cadastro.</p>
-        </div>
-
-        <form id="formCadastro">
-
-            <div class="form-group">
-                <label for="nome">Nome completo</label>
-                <input
-                    type="text"
-                    id="nome"
-                    placeholder="Digite o nome completo"
-                    maxlength="150"
-                    autocomplete="name"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="cargo">Cargo</label>
-                <input
-                    type="text"
-                    id="cargo"
-                    placeholder="Digite o cargo"
-                    maxlength="100"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label for="dataContratacao">Data da contratação</label>
-                <input
-                    type="date"
-                    id="dataContratacao"
-                    required
-                >
-            </div>
-
-            <button type="submit" id="btnCadastrar">
-                Cadastrar funcionário
-            </button>
-
-        </form>
-
-        <div id="mensagem" role="status" aria-live="polite"></div>
-
-        <div class="footer">
-            Sistema de Cadastro de Funcionários
-        </div>
-
+    <div class="header">
+        <h1>Cadastro de Funcionários</h1>
+        <p>Preencha os dados para realizar o cadastro.</p>
     </div>
 
-    <script>
-        // ======================================
-        // CONFIGURAÇÃO DO SUPABASE
-        // ======================================
+    <!-- FORMULÁRIO -->
 
-        const SUPABASE_URL = "https://ntzbwxooemcxobgpeijm.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_zOYmpEAaDqT_9YhaQWXptw_zpLfYOZc";
+    <form id="formCadastro">
 
-        const supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_ANON_KEY
+        <div class="form-group">
+            <label for="nome">Nome completo</label>
+            <input
+                type="text"
+                id="nome"
+                placeholder="Digite o nome completo"
+                maxlength="150"
+                autocomplete="name"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="cargo">Cargo</label>
+            <input
+                type="text"
+                id="cargo"
+                placeholder="Digite o cargo"
+                maxlength="100"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="dataContratacao">Data da contratação</label>
+            <input
+                type="date"
+                id="dataContratacao"
+                required
+            >
+        </div>
+
+        <button type="submit" id="btnCadastrar" class="btn-cadastrar">
+            Cadastrar funcionário
+        </button>
+
+    </form>
+
+    <div id="mensagem" role="status" aria-live="polite"></div>
+
+    <!-- TABELA DE FUNCIONÁRIOS -->
+
+    <section class="lista-section">
+
+        <div class="lista-header">
+            <div>
+                <h2>Funcionários cadastrados</h2>
+                <p>Registros armazenados no banco de dados.</p>
+            </div>
+
+            <button
+                type="button"
+                class="btn-atualizar"
+                id="btnAtualizar"
+            >
+                ↻ Atualizar lista
+            </button>
+        </div>
+
+        <div class="tabela-container">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Cargo</th>
+                        <th>Data da contratação</th>
+                    </tr>
+                </thead>
+
+                <tbody id="listaFuncionarios">
+
+                    <tr>
+                        <td colspan="4" class="vazio">
+                            Carregando funcionários...
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <div class="contador" id="contador">
+            Carregando registros...
+        </div>
+
+    </section>
+
+    <div class="footer">
+        Sistema de Cadastro de Funcionários
+    </div>
+
+</div>
+
+<script>
+
+// ======================================
+// CONFIGURAÇÃO DO SUPABASE
+// ======================================
+
+const SUPABASE_URL = "https://ntzbwxooemcxobgpeijm.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_zOYmpEAaDqT_9YhaQWXptw_zpLfYOZc";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+// ======================================
+// ELEMENTOS DA PÁGINA
+// ======================================
+
+const form = document.getElementById("formCadastro");
+const botao = document.getElementById("btnCadastrar");
+const mensagem = document.getElementById("mensagem");
+
+const listaFuncionarios = document.getElementById("listaFuncionarios");
+const contador = document.getElementById("contador");
+const btnAtualizar = document.getElementById("btnAtualizar");
+
+// ======================================
+// CADASTRAR FUNCIONÁRIO
+// ======================================
+
+form.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    mensagem.className = "";
+    mensagem.textContent = "";
+
+    const nome = document.getElementById("nome").value.trim();
+    const cargo = document.getElementById("cargo").value.trim();
+
+    const dataContratacao =
+        document.getElementById("dataContratacao").value;
+
+    if (!nome || !cargo || !dataContratacao) {
+        mostrarMensagem("Preencha todos os campos.", "erro");
+        return;
+    }
+
+    if (nome.length > 150 || cargo.length > 100) {
+        mostrarMensagem("Verifique o tamanho dos campos.", "erro");
+        return;
+    }
+
+    botao.disabled = true;
+    botao.textContent = "Salvando...";
+
+    try {
+
+        const { error } = await supabaseClient
+            .from("funcionarios")
+            .insert([
+                {
+                    nome: nome,
+                    cargo: cargo,
+                    data_contratacao: dataContratacao
+                }
+            ]);
+
+        if (error) {
+            throw error;
+        }
+
+        mostrarMensagem(
+            "Funcionário cadastrado com sucesso!",
+            "sucesso"
         );
 
-        // ======================================
-        // CADASTRO DE FUNCIONÁRIOS
-        // ======================================
+        form.reset();
 
-        const form = document.getElementById("formCadastro");
-        const botao = document.getElementById("btnCadastrar");
-        const mensagem = document.getElementById("mensagem");
+        // Atualiza a tabela após cadastrar
+        await carregarFuncionarios();
 
-        form.addEventListener("submit", async function(event) {
+    } catch (error) {
 
-            event.preventDefault();
+        console.error("Erro no cadastro:", error);
 
-            mensagem.className = "";
-            mensagem.textContent = "";
+        mostrarMensagem(
+            "Não foi possível realizar o cadastro. Verifique as configurações.",
+            "erro"
+        );
 
-            const nome = document.getElementById("nome").value.trim();
-            const cargo = document.getElementById("cargo").value.trim();
-            const dataContratacao = document.getElementById("dataContratacao").value;
+    } finally {
 
-            if (!nome || !cargo || !dataContratacao) {
-                mostrarMensagem("Preencha todos os campos.", "erro");
-                return;
-            }
+        botao.disabled = false;
+        botao.textContent = "Cadastrar funcionário";
 
-            if (nome.length > 150 || cargo.length > 100) {
-                mostrarMensagem("Verifique o tamanho dos campos.", "erro");
-                return;
-            }
+    }
 
-            botao.disabled = true;
-            botao.textContent = "Salvando...";
+});
 
-            try {
+// ======================================
+// CARREGAR FUNCIONÁRIOS DO SUPABASE
+// ======================================
 
-                const { error } = await supabaseClient
-                    .from("funcionarios")
-                    .insert([
-                        {
-                            nome: nome,
-                            cargo: cargo,
-                            data_contratacao: dataContratacao
-                        }
-                    ]);
+async function carregarFuncionarios() {
 
-                if (error) {
-                    throw error;
-                }
+    listaFuncionarios.innerHTML = `
+        <tr>
+            <td colspan="4" class="vazio">
+                Carregando funcionários...
+            </td>
+        </tr>
+    `;
 
-                mostrarMensagem(
-                    "Funcionário cadastrado com sucesso!",
-                    "sucesso"
-                );
+    contador.textContent = "Consultando banco de dados...";
 
-                form.reset();
+    btnAtualizar.disabled = true;
 
-            } catch (error) {
+    try {
 
-                console.error("Erro no cadastro:", error);
+        const { data, error } = await supabaseClient
+            .from("funcionarios")
+            .select("id, nome, cargo, data_contratacao")
+            .order("created_at", { ascending: false });
 
-                mostrarMensagem(
-                    "Não foi possível realizar o cadastro. Verifique a conexão e as configurações.",
-                    "erro"
-                );
+        if (error) {
+            throw error;
+        }
 
-            } finally {
+        listaFuncionarios.innerHTML = "";
 
-                botao.disabled = false;
-                botao.textContent = "Cadastrar funcionário";
+        if (!data || data.length === 0) {
 
-            }
+            listaFuncionarios.innerHTML = `
+                <tr>
+                    <td colspan="4" class="vazio">
+                        Nenhum funcionário cadastrado.
+                    </td>
+                </tr>
+            `;
+
+            contador.textContent = "Total de funcionários: 0";
+
+            return;
+        }
+
+        data.forEach(funcionario => {
+
+            const linha = document.createElement("tr");
+
+            // ID
+            const tdId = document.createElement("td");
+            const badge = document.createElement("span");
+
+            badge.className = "id-badge";
+            badge.textContent = funcionario.id;
+
+            tdId.appendChild(badge);
+
+            // Nome
+            const tdNome = document.createElement("td");
+            tdNome.textContent = funcionario.nome;
+
+            // Cargo
+            const tdCargo = document.createElement("td");
+            tdCargo.textContent = funcionario.cargo;
+
+            // Data
+            const tdData = document.createElement("td");
+
+            const partes = funcionario.data_contratacao.split("-");
+
+            tdData.textContent =
+                `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+            linha.appendChild(tdId);
+            linha.appendChild(tdNome);
+            linha.appendChild(tdCargo);
+            linha.appendChild(tdData);
+
+            listaFuncionarios.appendChild(linha);
 
         });
 
-        function mostrarMensagem(texto, tipo) {
-            mensagem.textContent = texto;
-            mensagem.className = tipo;
-        }
+        contador.textContent =
+            `Total de funcionários: ${data.length}`;
 
-    </script>
+    } catch (error) {
+
+        console.error("Erro ao consultar funcionários:", error);
+
+        listaFuncionarios.innerHTML = `
+            <tr>
+                <td colspan="4" class="vazio">
+                    Erro ao carregar os funcionários.
+                    Verifique as permissões do Supabase.
+                </td>
+            </tr>
+        `;
+
+        contador.textContent = "Falha na consulta.";
+
+    } finally {
+
+        btnAtualizar.disabled = false;
+
+    }
+
+}
+
+// ======================================
+// MENSAGENS
+// ======================================
+
+function mostrarMensagem(texto, tipo) {
+
+    mensagem.textContent = texto;
+    mensagem.className = tipo;
+
+}
+
+// ======================================
+// ATUALIZAR LISTAGEM
+// ======================================
+
+btnAtualizar.addEventListener("click", carregarFuncionarios);
+
+// ======================================
+// CARREGAR AO ABRIR A PÁGINA
+// ======================================
+
+carregarFuncionarios();
+
+</script>
 
 </body>
 </html>
