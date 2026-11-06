@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Funcionários</title>
+
+    <!-- Biblioteca oficial do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 25px;
+            color: #172554;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        #mensagem {
+            display: none;
+            margin-top: 18px;
+            padding: 13px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .sucesso {
+            display: block !important;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .erro {
+            display: block !important;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>Cadastro de Funcionários</h1>
+            <p>Preencha os dados para realizar o cadastro.</p>
+        </div>
+
+        <form id="formCadastro">
+
+            <div class="form-group">
+                <label for="nome">Nome completo</label>
+                <input
+                    type="text"
+                    id="nome"
+                    placeholder="Digite o nome completo"
+                    maxlength="150"
+                    autocomplete="name"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="cargo">Cargo</label>
+                <input
+                    type="text"
+                    id="cargo"
+                    placeholder="Digite o cargo"
+                    maxlength="100"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="dataContratacao">Data da contratação</label>
+                <input
+                    type="date"
+                    id="dataContratacao"
+                    required
+                >
+            </div>
+
+            <button type="submit" id="btnCadastrar">
+                Cadastrar funcionário
+            </button>
+
+        </form>
+
+        <div id="mensagem" role="status" aria-live="polite"></div>
+
+        <div class="footer">
+            Sistema de Cadastro de Funcionários
+        </div>
+
+    </div>
+
+    <script>
+        // ======================================
+        // CONFIGURAÇÃO DO SUPABASE
+        // ======================================
+
+        const SUPABASE_URL = "COLE_AQUI_SUA_URL";
+        const SUPABASE_ANON_KEY = "COLE_AQUI_SUA_CHAVE_PUBLICA";
+
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+        // ======================================
+        // CADASTRO DE FUNCIONÁRIOS
+        // ======================================
+
+        const form = document.getElementById("formCadastro");
+        const botao = document.getElementById("btnCadastrar");
+        const mensagem = document.getElementById("mensagem");
+
+        form.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            mensagem.className = "";
+            mensagem.textContent = "";
+
+            const nome = document.getElementById("nome").value.trim();
+            const cargo = document.getElementById("cargo").value.trim();
+            const dataContratacao = document.getElementById("dataContratacao").value;
+
+            if (!nome || !cargo || !dataContratacao) {
+                mostrarMensagem("Preencha todos os campos.", "erro");
+                return;
+            }
+
+            if (nome.length > 150 || cargo.length > 100) {
+                mostrarMensagem("Verifique o tamanho dos campos.", "erro");
+                return;
+            }
+
+            botao.disabled = true;
+            botao.textContent = "Salvando...";
+
+            try {
+
+                const { error } = await supabaseClient
+                    .from("funcionarios")
+                    .insert([
+                        {
+                            nome: nome,
+                            cargo: cargo,
+                            data_contratacao: dataContratacao
+                        }
+                    ]);
+
+                if (error) {
+                    throw error;
+                }
+
+                mostrarMensagem(
+                    "Funcionário cadastrado com sucesso!",
+                    "sucesso"
+                );
+
+                form.reset();
+
+            } catch (error) {
+
+                console.error("Erro no cadastro:", error);
+
+                mostrarMensagem(
+                    "Não foi possível realizar o cadastro. Verifique a conexão e as configurações.",
+                    "erro"
+                );
+
+            } finally {
+
+                botao.disabled = false;
+                botao.textContent = "Cadastrar funcionário";
+
+            }
+
+        });
+
+        function mostrarMensagem(texto, tipo) {
+            mensagem.textContent = texto;
+            mensagem.className = tipo;
+        }
+
+    </script>
+
+</body>
+</html>
