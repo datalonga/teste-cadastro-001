@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1220">
+  <title>Guia: Cadastro com Supabase</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: #111b2e;
+      --panel-2: #162238;
+      --text: #edf3ff;
+      --muted: #9aabc5;
+      --line: #263651;
+      --accent: #69e0bd;
+      --accent-dark: #123d3a;
+      --blue: #8db8ff;
+      --warning: #ffd27a;
+      --danger: #ff9d9d;
+      --radius: 18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 15% 0%, rgba(47, 117, 112, .2), transparent 35rem),
+        radial-gradient(ellipse at 90% 10%, rgba(61, 103, 173, .17), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: var(--accent); }
+
+    .wrap {
+      width: min(1120px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(11, 18, 32, .88);
+      backdrop-filter: blur(16px);
+    }
+
+    .topbar-inner {
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 750;
+      letter-spacing: -.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      color: #08221e;
+      background: var(--accent);
+      font-weight: 900;
+    }
+
+    .top-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .9rem;
+    }
+
+    .hero {
+      padding: 76px 0 44px;
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 38px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-weight: 800;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 18px;
+      font-size: clamp(2.4rem, 6vw, 4.7rem);
+      line-height: 1.03;
+      letter-spacing: -.055em;
+    }
+
+    .hero p {
+      max-width: 690px;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .hero-card, .card, .step-card, .notice, .code-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(22,34,56,.92), rgba(17,27,46,.94));
+    }
+
+    .hero-card { padding: 24px; }
+
+    .hero-card h2 {
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+
+    .checklist {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 13px;
+      color: var(--muted);
+      font-size: .93rem;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .check {
+      display: grid;
+      place-items: center;
+      flex: 0 0 22px;
+      height: 22px;
+      border-radius: 50%;
+      color: var(--accent);
+      background: var(--accent-dark);
+      font-size: .8rem;
+      font-weight: 900;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 235px minmax(0, 1fr);
+      gap: 34px;
+      align-items: start;
+      padding-bottom: 80px;
+    }
+
+    .toc {
+      position: sticky;
+      top: 88px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(17,27,46,.78);
+    }
+
+    .toc strong {
+      display: block;
+      margin: 0 0 10px;
+      font-size: .82rem;
+      color: var(--text);
+    }
+
+    .toc a {
+      display: block;
+      padding: 6px 0;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .85rem;
+    }
+
+    .toc a:hover { color: var(--accent); }
+
+    main { min-width: 0; }
+
+    section {
+      scroll-margin-top: 90px;
+      margin-bottom: 44px;
+    }
+
+    .section-head {
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+      margin-bottom: 19px;
+    }
+
+    .number {
+      display: grid;
+      place-items: center;
+      flex: 0 0 38px;
+      height: 38px;
+      border: 1px solid rgba(105,224,189,.35);
+      border-radius: 12px;
+      color: var(--accent);
+      background: rgba(105,224,189,.08);
+      font-weight: 850;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+      font-size: clamp(1.35rem, 3vw, 1.8rem);
+      line-height: 1.2;
+      letter-spacing: -.03em;
+    }
+
+    .section-head p { margin-bottom: 0; color: var(--muted); }
+
+    .card, .step-card { padding: 22px; }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    .steps li { padding-left: 4px; }
+    .muted { color: var(--muted); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--blue);
+      background: rgba(141,184,255,.07);
+      font-size: .8rem;
+      font-weight: 700;
+    }
+
+    .notice {
+      padding: 16px 18px;
+      margin: 16px 0;
+      border-left: 3px solid var(--warning);
+      color: #e7d6b7;
+      font-size: .93rem;
+    }
+
+    .notice strong { color: var(--warning); }
+
+    .notice.danger { border-left-color: var(--danger); }
+    .notice.danger strong { color: var(--danger); }
+
+    .code-card {
+      overflow: hidden;
+      margin: 16px 0 20px;
+      background: #080e19;
+    }
+
+    .code-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+    }
+
+    .code-label {
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 700;
+    }
+
+    .copy-btn {
+      border: 1px solid #35506c;
+      border-radius: 9px;
+      padding: 7px 11px;
+      color: var(--text);
+      background: #17253a;
+      font: inherit;
+      font-size: .78rem;
+      font-weight: 750;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      color: #d8e7ff;
+      font: .84rem/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      tab-size: 2;
+    }
+
+    code { font-family: inherit; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .mini-card {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.025);
+    }
+
+    .mini-card h3 {
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    .mini-card p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .field-list {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+    }
+
+    .field-list div {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.02);
+    }
+
+    .field-list div:nth-last-child(-n+2) { border-bottom: 0; }
+    .field-list div:nth-child(2n) { color: var(--muted); }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 7px;
+      color: var(--accent);
+      background: rgba(105,224,189,.1);
+      font: .78rem ui-monospace, monospace;
+    }
+
+    .footer {
+      padding: 25px 0 45px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      z-index: 10;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      padding: 10px 15px;
+      border: 1px solid rgba(105,224,189,.3);
+      border-radius: 11px;
+      color: var(--text);
+      background: #142b2b;
+      box-shadow: 0 10px 35px rgba(0,0,0,.3);
+      pointer-events: none;
+      transition: .2s ease;
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    @media (max-width: 820px) {
+      .hero { grid-template-columns: 1fr; padding-top: 54px; }
+      .layout { grid-template-columns: 1fr; }
+      .toc { position: static; }
+      .toc nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+    }
+
+    @media (max-width: 560px) {
+      .wrap { width: min(100% - 24px, 1120px); }
+      .top-link { display: none; }
+      .hero { padding-top: 40px; }
+      .card, .step-card { padding: 17px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .toc nav { grid-template-columns: 1fr; }
+      pre { font-size: .76rem; padding: 14px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#topo">
+        <span class="brand-mark">S</span>
+        <span>Supabase Starter</span>
+      </a>
+      <a class="top-link" href="#seguranca">Configuração segura · HTML + GitHub Pages</a>
+    </div>
+  </header>
+
+  <div class="wrap" id="topo">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Guia passo a passo</div>
+        <h1>Cadastro de funcionários, do zero ao ar.</h1>
+        <p>
+          Monte um formulário simples com HTML, CSS e JavaScript, salve os registros
+          no Supabase e publique a página gratuitamente no GitHub Pages.
+        </p>
+        <a class="pill" href="#inicio">Começar o passo a passo ↓</a>
+      </div>
+
+      <aside class="hero-card">
+        <h2>O que você vai preparar</h2>
+        <ul class="checklist">
+          <li><span class="check">✓</span><span>Um projeto Supabase com tabela e política RLS.</span></li>
+          <li><span class="check">✓</span><span>Um arquivo <code>index.html</code> com o formulário.</span></li>
+          <li><span class="check">✓</span><span>Um repositório GitHub publicado como site.</span></li>
+          <li><span class="check">✓</span><span>Botões para copiar cada trecho de código.</span></li>
+        </ul>
+      </aside>
+    </section>
+
+    <div class="layout">
+      <aside class="toc">
+        <strong>Neste guia</strong>
+        <nav>
+          <a href="#inicio">1. Como funciona</a>
+          <a href="#supabase">2. Criar o projeto</a>
+          <a href="#sql">3. Criar tabela e RLS</a>
+          <a href="#app">4. Criar o formulário</a>
+          <a href="#credenciais">5. Conectar ao Supabase</a>
+          <a href="#github">6. Publicar no GitHub</a>
+          <a href="#teste">7. Testar</a>
+          <a href="#seguranca">8. Segurança</a>
+        </nav>
+      </aside>
+
+      <main>
+        <section id="inicio">
+          <div class="section-head">
+            <span class="number">01</span>
+            <div>
+              <h2>Como funciona</h2>
+              <p>O navegador envia os dados do formulário diretamente à API do Supabase.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="grid-2">
+              <div class="mini-card">
+                <h3>Frontend</h3>
+                <p>Uma página estática em HTML, CSS e JavaScript, hospedada no GitHub Pages.</p>
+              </div>
+              <div class="mini-card">
+                <h3>Banco de dados</h3>
+                <p>Uma tabela PostgreSQL no Supabase, protegida com RLS e uma política de inserção.</p>
+              </div>
+            </div>
+            <p class="muted" style="margin:16px 0 0">
+              O exemplo cadastra nome, cargo e data de contratação. Ele não mostra a lista de funcionários na página.
+            </p>
+          </div>
+        </section>
+
+        <section id="supabase">
+          <div class="section-head">
+            <span class="number">02</span>
+            <div>
+              <h2>Criar o projeto Supabase</h2>
+              <p>O painel do Supabase permite criar e administrar o banco pelo navegador.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <ol class="steps">
+              <li>Crie uma conta ou entre no painel do Supabase.</li>
+              <li>Crie uma organização, se ainda não tiver uma.</li>
+              <li>Selecione <strong>New project</strong>.</li>
+              <li>Escolha a organização, dê um nome ao projeto e defina uma senha segura para o banco.</li>
+              <li>Escolha uma região próxima e crie o projeto. Aguarde a inicialização.</li>
+            </ol>
+          </div>
+        </section>
+
+        <section id="sql">
+          <div class="section-head">
+            <span class="number">03</span>
+            <div>
+              <h2>Criar a tabela e ativar RLS</h2>
+              <p>Execute este SQL uma vez no SQL Editor do seu projeto.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <ol class="steps">
+              <li>No painel do projeto, abra <strong>SQL Editor</strong> e crie uma nova consulta.</li>
+              <li>Cole o SQL abaixo e clique em <strong>Run</strong>.</li>
+            </ol>
+
+            <div class="code-card">
+              <div class="code-top">
+                <span class="code-label">SQL · tabela, RLS, política e permissões</span>
+                <button class="copy-btn" type="button">Copiar código</button>
+              </div>
+              <pre><code>CREATE TABLE public.funcionarios (
+  id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+  nome VARCHAR(150) NOT NULL,
+  cargo VARCHAR(100) NOT NULL,
+  data_contratacao DATE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.funcionarios
+  ENABLE ROW LEVEL SECURITY;
+
+GRANT USAGE ON SCHEMA public TO anon;
+GRANT INSERT ON TABLE public.funcionarios TO anon;
+
+CREATE POLICY "Permitir cadastro de funcionarios"
+ON public.funcionarios
+FOR INSERT
+TO anon
+WITH CHECK (
+  char_length(trim(nome)) BETWEEN 1 AND 150
+  AND char_length(trim(cargo)) BETWEEN 1 AND 100
+  AND data_contratacao IS NOT NULL
+);</code></pre>
+            </div>
+
+            <div class="notice">
+              <strong>Importante:</strong> a política permite que visitantes enviem novos registros como
+              <code>anon</code>. Ela não concede permissão para consultar, editar ou excluir os registros.
+              O comando acima é para executar uma vez; rodá-lo novamente pode dar erro porque a tabela ou política já existe.
+            </div>
+
+            <h3>Colunas criadas</h3>
+            <div class="field-list">
+              <div><strong>Coluna</strong></div><div><strong>Uso</strong></div>
+              <div><span class="tag">id</span></div><div>Identificador gerado automaticamente</div>
+              <div><span class="tag">nome</span></div><div>Nome do funcionário</div>
+              <div><span class="tag">cargo</span></div><div>Cargo informado no formulário</div>
+              <div><span class="tag">data_contratacao</span></div><div>Data de contratação</div>
+              <div><span class="tag">created_at</span></div><div>Data e hora da criação do registro</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="app">
+          <div class="section-head">
+            <span class="number">04</span>
+            <div>
+              <h2>Criar o arquivo do formulário</h2>
+              <p>Crie um arquivo chamado <code>index.html</code> e cole nele o código abaixo.</p>
+            </div>
+          </div>
+
+          <div class="notice">
+            <strong>Antes de publicar:</strong> no código, troque <code>COLE_AQUI_SUA_URL</code>
+            e <code>COLE_AQUI_SUA_CHAVE_PUBLICA</code> pelos dados do seu projeto (passo 5).
+          </div>
+
+          <div class="code-card">
+            <div class="code-top">
+              <span class="code-label">index.html · formulário funcional</span>
+              <button class="copy-btn" type="button">Copiar código</button>
+            </div>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Cadastro de Funcionários&lt;/title&gt;
+  &lt;script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"&gt;&lt;/script&gt;
+  &lt;style&gt;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; padding: 24px;
+      display: grid; place-items: center;
+      background: #f1f5f9; color: #172554;
+      font-family: Arial, sans-serif;
+    }
+    .card {
+      width: min(100%, 460px); padding: 30px;
+      border-radius: 18px; background: white;
+      box-shadow: 0 12px 40px #0f172a12;
+    }
+    h1 { margin: 0 0 8px; font-size: 1.6rem; }
+    .intro { margin: 0 0 24px; color: #64748b; }
+    label { display: block; margin: 16px 0 7px; font-weight: 700; }
+    input {
+      width: 100%; padding: 12px; border: 1px solid #cbd5e1;
+      border-radius: 9px; font: inherit;
+    }
+    input:focus { outline: 2px solid #93c5fd; border-color: #2563eb; }
+    button {
+      width: 100%; margin-top: 22px; padding: 13px;
+      border: 0; border-radius: 9px; background: #2563eb;
+      color: white; font: inherit; font-weight: 700; cursor: pointer;
+    }
+    button:disabled { opacity: .6; cursor: wait; }
+    #mensagem { margin-top: 16px; }
+    .sucesso { color: #15803d; }
+    .erro { color: #b91c1c; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;main class="card"&gt;
+    &lt;h1&gt;Cadastro de funcionários&lt;/h1&gt;
+    &lt;p class="intro"&gt;Preencha os dados para realizar o cadastro.&lt;/p&gt;
+
+    &lt;form id="formCadastro"&gt;
+      &lt;label for="nome"&gt;Nome completo&lt;/label&gt;
+      &lt;input id="nome" type="text" maxlength="150" autocomplete="name" required&gt;
+
+      &lt;label for="cargo"&gt;Cargo&lt;/label&gt;
+      &lt;input id="cargo" type="text" maxlength="100" required&gt;
+
+      &lt;label for="dataContratacao"&gt;Data da contratação&lt;/label&gt;
+      &lt;input id="dataContratacao" type="date" required&gt;
+
+      &lt;button id="btnCadastrar" type="submit"&gt;Cadastrar funcionário&lt;/button&gt;
+    &lt;/form&gt;
+
+    &lt;p id="mensagem" role="status" aria-live="polite"&gt;&lt;/p&gt;
+  &lt;/main&gt;
+
+  &lt;script&gt;
+    const SUPABASE_URL = "COLE_AQUI_SUA_URL";
+    const SUPABASE_PUBLIC_KEY = "COLE_AQUI_SUA_CHAVE_PUBLICA";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLIC_KEY
+    );
+
+    const form = document.getElementById("formCadastro");
+    const botao = document.getElementById("btnCadastrar");
+    const mensagem = document.getElementById("mensagem");
+
+    form.addEventListener("submit", async (event) =&gt; {
+      event.preventDefault();
+      mensagem.textContent = "";
+      mensagem.className = "";
+
+      const nome = document.getElementById("nome").value.trim();
+      const cargo = document.getElementById("cargo").value.trim();
+      const dataContratacao =
+        document.getElementById("dataContratacao").value;
+
+      if (!nome || !cargo || !dataContratacao) {
+        mostrarMensagem("Preencha todos os campos.", "erro");
+        return;
+      }
+
+      botao.disabled = true;
+      botao.textContent = "Salvando...";
+
+      try {
+        const { error } = await supabaseClient
+          .from("funcionarios")
+          .insert({
+            nome,
+            cargo,
+            data_contratacao: dataContratacao
+          });
+
+        if (error) throw error;
+
+        mostrarMensagem("Funcionário cadastrado com sucesso!", "sucesso");
+        form.reset();
+      } catch (error) {
+        console.error("Erro no cadastro:", error);
+        mostrarMensagem(
+          "Não foi possível cadastrar. Confira a conexão e as permissões do Supabase.",
+          "erro"
+        );
+      } finally {
+        botao.disabled = false;
+        botao.textContent = "Cadastrar funcionário";
+      }
+    });
+
+    function mostrarMensagem(texto, tipo) {
+      mensagem.textContent = texto;
+      mensagem.className = tipo;
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+          </div>
+        </section>
+
+        <section id="credenciais">
+          <div class="section-head">
+            <span class="number">05</span>
+            <div>
+              <h2>Conectar o HTML ao Supabase</h2>
+              <p>Copie a URL do projeto e a chave publicável no painel do Supabase.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <ol class="steps">
+              <li>No painel, abra a área de configuração do projeto e procure <strong>API Keys</strong> ou <strong>Connect</strong>.</li>
+              <li>Copie a <strong>Project URL</strong> e a chave <strong>Publishable</strong> (em projetos antigos, pode aparecer como <strong>anon</strong>).</li>
+              <li>No arquivo <code>index.html</code>, substitua os valores de exemplo:</li>
+            </ol>
+
+            <div class="code-card">
+              <div class="code-top">
+                <span class="code-label">Configuração do cliente</span>
+                <button class="copy-btn" type="button">Copiar código</button>
+              </div>
+              <pre><code>const SUPABASE_URL = "https://seu-projeto.supabase.co";
+const SUPABASE_PUBLIC_KEY = "sb_publishable_sua_chave";</code></pre>
+            </div>
+
+            <div class="notice danger">
+              <strong>Nunca coloque no HTML:</strong> a chave <code>secret</code> ou
+              <code>service_role</code>, senha do banco ou qualquer credencial secreta.
+              O HTML é público; a chave publicável é feita para uso no frontend e deve ser combinada com RLS.
+            </div>
+          </div>
+        </section>
+
+        <section id="github">
+          <div class="section-head">
+            <span class="number">06</span>
+            <div>
+              <h2>Publicar no GitHub Pages</h2>
+              <p>O arquivo do site deve se chamar <code>index.html</code> e ficar na raiz do repositório.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <ol class="steps">
+              <li>Entre no GitHub e crie um repositório chamado, por exemplo, <code>cadastro-funcionarios</code>.</li>
+              <li>Envie o arquivo <code>index.html</code> para a raiz do repositório e salve as alterações.</li>
+              <li>No repositório, abra <strong>Settings → Pages</strong>.</li>
+              <li>Em <strong>Build and deployment</strong>, selecione <strong>Deploy from a branch</strong>.</li>
+              <li>Escolha a branch <code>main</code> e a pasta <code>/(root)</code>, depois salve.</li>
+              <li>Quando a publicação terminar, abra o endereço indicado na página do GitHub Pages.</li>
+            </ol>
+
+            <div class="notice">
+              O endereço costuma seguir o formato
+              <code>https://seu-usuario.github.io/nome-do-repositorio/</code>.
+              O GitHub mostrará o endereço exato do seu site nas configurações de Pages.
+            </div>
+          </div>
+        </section>
+
+        <section id="teste">
+          <div class="section-head">
+            <span class="number">07</span>
+            <div>
+              <h2>Testar o cadastro</h2>
+              <p>Faça um envio de teste e confirme o registro no banco.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <ol class="steps">
+              <li>Abra o endereço publicado no GitHub Pages.</li>
+              <li>Preencha nome, cargo e data de contratação; clique em <strong>Cadastrar funcionário</strong>.</li>
+              <li>Confira a mensagem de sucesso na página.</li>
+              <li>No Supabase, abra <strong>Table Editor → funcionarios</strong> e confira se o registro chegou.</li>
+            </ol>
+          </div>
+        </section>
+
+        <section id="seguranca">
+          <div class="section-head">
+            <span class="number">08</span>
+            <div>
+              <h2>Segurança e próximos passos</h2>
+              <p>Este é um exemplo simples para aprendizado e protótipo.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <ul class="steps">
+              <li>Mantenha RLS ativado e conceda somente as permissões necessárias.</li>
+              <li>Não crie uma política de leitura pública para a tabela de funcionários.</li>
+              <li>Como não há login, qualquer visitante pode tentar cadastrar dados. Para uso interno, adicione autenticação e políticas para usuários autenticados.</li>
+              <li>Para uso real, considere controles contra spam e abuso, além das obrigações aplicáveis de proteção de dados pessoais.</li>
+              <li>Confira periodicamente as permissões e políticas no painel do Supabase.</li>
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer">
+      <div class="wrap">
+        Guia de exemplo · HTML, CSS, JavaScript, Supabase e GitHub Pages
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Código copiado!</div>
+
+  <script>
+    const toast = document.getElementById("toast");
+    let toastTimer;
+
+    async function copiarCodigo(botao) {
+      const code = botao.closest(".code-card").querySelector("code");
+      const texto = code.textContent;
+
+      try {
+        await navigator.clipboard.writeText(texto);
+      } catch {
+        const area = document.createElement("textarea");
+        area.value = texto;
+        area.style.position = "fixed";
+        area.style.opacity = "0";
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+
+      const textoOriginal = botao.textContent;
+      botao.textContent = "Copiado!";
+      toast.classList.add("show");
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+        botao.textContent = textoOriginal;
+      }, 1800);
+    }
+
+    document.querySelectorAll(".copy-btn").forEach((botao) => {
+      botao.addEventListener("click", () => copiarCodigo(botao));
+    });
+  </script>
+</body>
+</html>
